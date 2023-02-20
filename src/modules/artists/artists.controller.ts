@@ -1,19 +1,20 @@
 import { Body, Controller, Delete, Get, HttpException, Param, ParseUUIDPipe, Post, Put, HttpCode } from "@nestjs/common";
 import { CreateArtistDto } from "../shared/models/artist";
 import { DB } from "../shared/services/db.service";
+import { ArtistsService } from "./artists.service";
 
 @Controller('artist')
 export class ArtistsController {
-    constructor(private readonly db: DB) {}
+    constructor(private readonly service: ArtistsService) {}
 
     @Get('')
     public getArtists() {
-        return this.db.artists.findMany();
+        return this.service.getArtists();
     }
 
     @Get('/:id')
     public async getArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-        const artist = await this.db.artists.findOne({ key: 'id', equals: id });
+        const artist = await this.service.getArtist(id);
         if (artist) {
             return artist;
         } else {
@@ -24,7 +25,7 @@ export class ArtistsController {
     @Post('')
     @HttpCode(201)
     public createArtist(@Body() dto: CreateArtistDto) {
-        return this.db.artists.create(dto);
+        return this.service.createArtist(dto);
     }
 
     @Put('/:id')
@@ -32,7 +33,7 @@ export class ArtistsController {
         @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
         @Body() dto: CreateArtistDto
     ) {
-        const changed = await this.db.artists.change(id, dto);
+        const changed = await this.service.updateArtist(id, dto);
         if (changed) {
             return changed;
         } else {
@@ -43,7 +44,7 @@ export class ArtistsController {
     @Delete('/:id')
     @HttpCode(204)
     public async deleteArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-        const deleted = await this.db.artists.delete(id);
+        const deleted = await this.service.deleteArtist(id);
         if (deleted) {
             return deleted;
         } else {

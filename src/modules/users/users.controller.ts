@@ -1,24 +1,22 @@
 import {
     Body, Controller, Post, Get, Put, Delete, Header, Param, Res,
-    HttpCode, HttpException, ParseUUIDPipe, UseInterceptors
+    HttpCode, HttpException, ParseUUIDPipe
 } from "@nestjs/common";
 import { CreateUserDto, UpdatePasswordDto } from "../shared/models/user";
-import { DB } from "../shared/services/db.service";
-import { ExludePasswordInterceptor } from "./services/exclude-password.interceptor";
+import { UsersService } from "./services/users.service";
 
 @Controller('user')
-@UseInterceptors(ExludePasswordInterceptor)
 export class UsersController {
-    constructor(private readonly db: DB) {}
+    constructor(private readonly service: UsersService) {}
 
     @Get('')
     public getUsers() {
-        return this.db.users.findMany();
+        return this.service.getUsers();
     }
 
     @Get('/:id')
     public async getUser(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-        const user = await this.db.users.findOne({ key: 'id', equals: id });
+        const user = await this.service.getUser(id);
         if (user) {
             return user;
         } else {
@@ -29,7 +27,7 @@ export class UsersController {
     @Post('')
     @HttpCode(201)
     public createUser(@Body() dto: CreateUserDto) {
-        return this.db.users.create(dto);
+        return this.service.createUser(dto);
     }
 
     @Put('/:id')
@@ -37,22 +35,13 @@ export class UsersController {
         @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
         @Body() dto: UpdatePasswordDto
     ) {
-        const user = await this.db.users.findOne({ key: 'id', equals: id });
-        if (!user) {
-            throw new HttpException('User not found', 404);
-        }
-
-        if (user.password !== dto.oldPassword) {
-            throw new HttpException('Access forbidden: password don\'t match', 403);
-        }
-
-        return this.db.users.change(id, dto);
+        return this.service.updatePassword(id, dto);
     }
 
     @Delete('/:id')
     @HttpCode(204)
     public async deleteUser(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-        const user = await this.db.users.delete(id);
+        const user = await this.service.deleteUser(id);
         if (user) {
             return user;
         } else {
