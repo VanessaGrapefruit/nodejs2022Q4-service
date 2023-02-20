@@ -14,7 +14,8 @@ export interface IFavoritesEntity {
     tracks: string[];
 }
 
-export type FavoritesKind = keyof IFavoritesEntity;
+//export type FavoritesKind = keyof IFavoritesEntity;
+export type FavoritesKind = 'artist' | 'album' | 'track';
 
 export class FavoritesEntity implements IFavoritesEntity {
     artists: string[] = [];

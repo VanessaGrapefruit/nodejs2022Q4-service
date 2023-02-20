@@ -9,6 +9,8 @@ export interface UserDTO {
     updatedAt: number | null; // timestamp of last update
 }
 
+export type UserWithoutPassword = Omit<UserDTO, 'password'>;
+
 export class CreateUserDto {
     @IsNotEmpty() login: string;
     @IsNotEmpty() password: string;

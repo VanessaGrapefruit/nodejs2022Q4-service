@@ -1,5 +1,17 @@
 # Home Library Service
 
+## How to run server locally
+
+1. Run docker container with postgres image
+`docker run -d --name mart -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 postgres`
+
+2. Generate prisma schema and apply migrations
+`npx prisma generate`
+`npx prisma migrate dev`
+
+3. Run
+`npm run start`
+
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
